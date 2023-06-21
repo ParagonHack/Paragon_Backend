@@ -3,9 +3,12 @@ from pytube import YouTube
 
 
 class YtDownloader():
-    def __init__(self, linkList: list, outPath: str, fileName: str):
-        for url in linkList:
-            self.download(url, outPath, fileName)
+    def __init__(self, webURL: list, outPath: str, fileName: str):
+        self.outPath = outPath
+        self.fileName = fileName
+        self.url = webURL
+
+        self.YT_download()
 
     def connect(self, url) -> None:
         self.video = YouTube(url,
@@ -14,12 +17,13 @@ class YtDownloader():
                             )
         
     
-    def download(self, url: str, path: str, filename: str) -> None:
-        self.connect(url)
+    def YT_download(self) -> None:
+        self.connect(self.url)
         obj = self.video.streams.filter(file_extension='mp4').first()
         video = self.video.streams.get_by_itag(obj.itag)
+
         # finally download the YouTube Video...
-        video.download(output_path=path, filename=filename + '.mp4')
+        video.download(output_path=self.outPath, filename=self.fileName + '.mp4')
 
 
         # for streams in obj:
@@ -36,11 +40,12 @@ import requests
 
 
 class TTDownloader():
-    def __init__(self, linkList: list, outPath: str, fileName:str):
+    def __init__(self, webURL: str, outPath: str, fileName:str):
         self.outPath = outPath
         self.fileName = fileName
+        self.url = webURL
 
-        self.downloadAll(linkList)
+        self.TT_download()
 
 
 
@@ -88,7 +93,12 @@ class TTDownloader():
         return cookies, headers, data
 
 
-    def TT_download(self, cookies, headers, data, name) -> None:
+    def TT_download(self) -> None:
+        parseDict = self.getDict()
+        cookies, headers, data = self.createHeader(parseDict)
+
+        data['url'] = self.url
+
         response = requests.post('https://ttdownloader.com/search/',
                                 cookies=cookies, headers=headers, data=data)
         linkParse = [i for i in str(response.text).split()
@@ -99,35 +109,21 @@ class TTDownloader():
             f.write(response.content)
 
 
-    def downloadAll(self, linkList: list) -> None:
-        parseDict = self.getDict()
-        cookies, headers, data = self.createHeader(parseDict)
-        for i in linkList:
-            try:
-                data['url'] = i
-                self.TT_download(cookies, headers, data, str(linkList.index(i)))
-            except IndexError:
-                parseDict = self.getDict()
-                cookies, headers, data = self.createHeader(parseDict)
-            except Exception as err:
-                print(err)
-                exit(1)
-
-
 
 import instaloader
 
 
 class IGDownloader():
-    def __init__(self, linkList: list, outPath: str, fileName:str):
+    def __init__(self, webURL: str, outPath: str, fileName:str):
         self.outPath = outPath
         self.fileName = fileName
+        self.url = webURL
 
-        self.downloadAll(linkList)
+        self.IG_download()
     
-    def IG_download(self, url) -> None:
+    def IG_download(self) -> None:
         obj = instaloader.Instaloader()
-        post = instaloader.Post.from_shortcode(obj.context, url.split('p/')[1].strip('/ '))
+        post = instaloader.Post.from_shortcode(obj.context, self.url.split('p/')[1].strip('/ '))
         photo_url = post.url
         video_url = post.video_url
         if video_url:
@@ -138,11 +134,3 @@ class IGDownloader():
             response = requests.get(photo_url)
             with open(self.outPath + '/' +  self.fileName + ".jpg", "wb") as f:
                 f.write(response.content)
-
-    def downloadAll(self, linkList) -> None:
-        for i in linkList:
-            try:
-                self.IG_download(i)
-            except Exception as err:
-                print(err)
-                exit(1)
