@@ -1,4 +1,5 @@
 from VideoParsers import YtDownloader, TTDownloader, IGDownloader
+import os
 
 def getLinkDict(linkList: list) -> dict:
     values={"tiktok":[],"instagram":[], "youtube": []}
@@ -13,7 +14,7 @@ def getLinkDict(linkList: list) -> dict:
 
 
 def main(linkDict):
-    outPath = './data/videos/'
+    outPath = f"{os.getcwd()}/Data/Scraping/data/videos/"
     fileName = '0'
 
 
@@ -25,7 +26,7 @@ def main(linkDict):
 
 
 if __name__ == '__main__':
-    with open("./data/videos/dataLinks.txt") as f: 
+    with open(f"{os.getcwd()}/Data/Scraping/data/dataLinks.txt") as f: 
         links = [item.strip() for item in f.read().split('\n')]
 
     linkDict = getLinkDict(links)
