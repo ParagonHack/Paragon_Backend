@@ -10,15 +10,10 @@ class YtDownloader():
 
         self.YT_download()
 
-    def connect(self, url) -> None:
-        self.video = YouTube(url,
-                            use_oauth=True,
-                            allow_oauth_cache=True
-                            )
-        
-    
+
     def YT_download(self) -> None:
-        self.connect(self.url)
+        self.video = YouTube(self.url, use_oauth=True, allow_oauth_cache=True)
+
         obj = self.video.streams.filter(file_extension='mp4').first()
         video = self.video.streams.get_by_itag(obj.itag)
 

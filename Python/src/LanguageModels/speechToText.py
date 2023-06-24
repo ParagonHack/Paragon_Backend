@@ -18,6 +18,6 @@ def transcribe_audio(filePath):
     video.audio.write_audiofile(newName)
 
     file = open(newName, "rb")
-    transcription = openai.Audio.transcribe("whisper-1", file)
+    transcription = openai.Audio.transcribe("whisper-1", file, response_format='verbose_json')
     
     return transcription
